@@ -1,5 +1,5 @@
 #!perl
-# $Id: Build.PL 2 2005-01-04 22:00:06Z daisuke $
+# $Id: Build.PL 3 2005-01-05 06:07:38Z daisuke $
 #
 # Daisuke Maki <dmaki@cpan.org>
 # All rights reserved.
@@ -8,7 +8,7 @@ use strict;
 use Module::Build;
 
 my $build = Module::Build->new(
-    dist_author   => 'Daisuke Maki <daisuke@cpan.org>',
+    dist_author   => 'Daisuke Maki <dmaki@cpan.org>',
     dist_name     => 'Class-Validating',
     module_name   => 'Class::Validating',
     license       => 'perl',

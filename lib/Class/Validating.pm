@@ -1,6 +1,6 @@
-# $Id: Validating.pm 2 2005-01-04 22:00:06Z daisuke $
+# $Id: Validating.pm 4 2005-01-06 06:22:24Z daisuke $
 #
-# Daisuke Maki <daisuke@cpan.org>
+# Daisuke Maki <dmaki@cpan.org>
 # All rights reserved.
 
 package Class::Validating;
@@ -8,7 +8,7 @@ use strict;
 use Class::Data::Inheritable ();
 use Params::Validate         ();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub import
 {
@@ -29,13 +29,15 @@ sub import
 
 }
 
+# Hey, use the (slight) evil-ness that we wanted to fix :)
+my @SetPVSpecValidate = (
+    { type => Params::Validate::SCALAR() },
+    { type => Params::Validate::HASHREF() | Params::Validate::ARRAYREF() }
+);
 sub set_pv_spec
 {
     my $class = shift;
-    my($name, $spec) = Params::Validate::validate_pos(@_,
-        { type => Params::Validate::SCALAR() },
-        { type => Params::Validate::HASHREF() | Params::Validate::ARRAYREF() }
-    );
+    my($name, $spec) = Params::Validate::validate_pos(@_, @SetPVSpecValidate);
 
     my $method = "pv_spec_$name";
     $class->mk_classdata($method);
@@ -52,31 +54,42 @@ sub _get_pv_spec
     return $pv_spec;
 }
 
+my @GetPVSpecValidate = (
+    { type => Params::Validate::SCALAR() }
+);
 sub get_pv_spec
 {
-    my($class, $sub) = @_;
+    my $class = shift;
+    my($sub) = Params::Validate::validate_pos(@_, @GetPVSpecValidate);
     
     $class = ref($class) || $class;
     return $class->_get_pv_spec("${class}::${sub}");
 }
 
+my @ValidateArgsValidate = (
+    { type => Params::Validate::ARRAYREF() },
+    { type => Params::Validate::HASHREF(), optional => 1 }
+);
 sub validate_args(\@\%)
 {
     my $self = shift;
+    my($params, $extra_args) = Params::Validate::validate_pos(@_, @ValidateArgsValidate);
+
     my $sub  = (caller(1))[3];
 
     my $pv_spec = $self->_get_pv_spec($sub);
     if (!$pv_spec) {
-        die("pv_spec for $sub is not defined.");
+        require Carp;
+        Carp::croak("pv_spec for $sub is not defined.");
     }
     my @args = (
         spec   => $pv_spec,
         called => $sub,
     );
-    if (defined $_[1]) {
-        push @args, %{$_[1]};
+    if (defined $extra_args) {
+        push @args, %{$extra_args};
     }
-    push @args, (params => $_[0]);
+    push @args, (params => $params);
     return Params::Validate::validate_with(@args);
 }
 
@@ -203,10 +216,11 @@ name points to. The validation spec must be defined via set_pv_spec()
 prior to calling this method. If no spec matching the method name is
 found, an exception will be thrown.
 
-%opts main contain extra arguments to Params::Validate::validate_with(), 
-such that you get maximum control over the validation behavior. Note
+%opts may contain extra arguments to Params::Validate::validate_with(), 
+such as 'allow_extra', 'called', etc. Note
 that if you give the "spec" argument to %opts, it WILL override whatever
-validation spec you defined in set_pv_spec()
+validation spec you defined in set_pv_spec(). See L<Params::Validate> for
+more details
 
 =head2 set_pv_spec(...)
 
@@ -235,8 +249,6 @@ L<Params::Validate>
 
 =head1 AUTHOR
 
-Daisuke Maki <daisuke@cpan.org>
+Daisuke Maki <dmaki@cpan.org>
 
 =cut
-
-    

@@ -1,8 +1,8 @@
 --- #YAML:1.0
 name: Class-Validating
-version: 0.01
+version: 0.02
 author:
-  - Daisuke Maki <daisuke@cpan.org>
+  - Daisuke Maki <dmaki@cpan.org>
 abstract: Provide Subclass-able Validation Mechanism
 license: perl
 requires:
@@ -13,5 +13,5 @@ build_requires:
 provides:
   Class::Validating:
     file: lib/Class/Validating.pm
-    version: 0.01
+    version: 0.02
 generated_by: Module::Build version 0.2607

@@ -1,5 +1,5 @@
 #!perl
-# $Id: 02-basic.t 2 2005-01-04 22:00:06Z daisuke $
+# $Id: 02-basic.t 4 2005-01-06 06:22:24Z daisuke $
 #
 # Daisuke Maki <dmaki@cpan.org>
 # All rights reserved.
@@ -24,22 +24,22 @@ __PACKAGE__->set_pv_spec(bar => { arg1 => {type => Params::Validate::HASHREF()},
 package main;
 
 eval{Parent->foo(1)};
-ok(!$@, "Correct usage (validate_pos)");
+ok(!$@, "Correct usage (validate_pos): $@");
 eval{Parent->foo(1,2)};
 ok($@, "Incorrect usage (validate_pos)");
 
 eval{Parent->bar(arg1 => {})};
-ok(!$@, "Correct usage (validate)");
+ok(!$@, "Correct usage (validate): $@");
 eval{Parent->bar(arg1 => [])};
 ok($@, "Incorrect usage (validate)");
 
 eval{Child->foo({})};
-ok(!$@, "Correct usage (overriden spec, validate_pos)");
+ok(!$@, "Correct usage (overriden spec, validate_pos): $@");
 eval{Child->foo(1)};
 ok($@, "Incorrect usage (overriden spec, validate_pos)");
 
 eval{Child->bar(arg1 => {}, arg2 => [])};
-ok(!$@, "Correct usage (validate)");
+ok(!$@, "Correct usage (validate): $@");
 eval{Child->bar(arg1 => [])};
 ok($@, "Incorrect usage (validate)");
 
